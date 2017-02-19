@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+use Ana;
+@ARGV == 2 or die "Usage: ana-dot anagram-a anagram-b\n";
+
+my ($a, $b) = @ARGV;
+Ana::are_anagrams($a, $b) or die "Those words are not anagrams.\n";
+
+my $G = Ana::Graph->new_from_words($a, $b);
+print $G->to_dot;
+
+print STDERR "Components:\n";
+for my $c ($G->components) {
+  print STDERR "@$c\n";
+}
+
+
+__END__
+mordant dormant  : 3 vertices, no edges
