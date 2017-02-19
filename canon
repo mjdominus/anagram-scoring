@@ -1,0 +1,6 @@
+#!/usr/bin/perl -l
+
+while (<>) {
+  print join "", sort split //;
+}
+
