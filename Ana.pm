@@ -12,7 +12,7 @@ sub score {
 
 sub normalize {
   my ($w) = @_;
-  join "", sort split //, $w;
+  join "", sort split //, lc $w;
 }
 
 sub are_anagrams {
