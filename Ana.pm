@@ -198,4 +198,41 @@ sub subgraph {
   }
   return $S;
 }
+
+# This finds a maximal independent set of a possibly not-connected graph
+# be decomposing it into components and solving the problem on each subcomponent
+sub mis {
+  my ($self) = @_;
+  my @mis;
+  for my $c ($self->components) {
+    my $s = $self->subgraph(@$c);
+    push @mis, $s->mis_component->@*;
+  }
+  return wantarray ? @mis : \@mis;
+}
+
+# This finds a maximal independent set in a graph, but for disconnected
+# graphs it may be a lot faster to use ->mis
+sub mis_component {
+  my ($self) = @_;
+  my @V = $self->V->@*;
+  my $best_mis = [];
+  my @queue = ([[], \@V]);
+  # DFS starting from the empty set
+  while (@queue) {
+    my ($set, $pool) = pop(@queue)->@*;
+    next if @$set + @$pool <= @$best_mis;
+
+    $best_mis = $set if @$set > @$best_mis;
+
+    my ($first, @new_pool) = @$pool;
+    next unless defined $first;
+    push @queue, [   $set          , \@new_pool ];
+    push @queue, [ [ @$set, $first], \@new_pool ]
+      unless $self->adjacent_any($first, @$set);
+
+  }
+  return wantarray ? @$best_mis : $best_mis;
+}
+
 1;

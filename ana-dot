@@ -14,6 +14,11 @@ for my $c ($G->components) {
   print STDERR "@$c\n";
 }
 
+print STDERR "\nMaximal independent set:\n";
+my @mis = $G->mis;
+print STDERR "  @mis\n";
+
 
 __END__
 mordant dormant  : 3 vertices, no edges
+acrididae cidaridae : 11 vertices, 11 edges, mis 4
