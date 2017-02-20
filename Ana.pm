@@ -150,11 +150,9 @@ sub disjoint {
 
 sub to_dot {
   my ($self) = @_;
-  my @vertex_line;
-  my @edge_line;
-  for my $v ($self->V) { push @vertex_line, "v$v"; }
-  for my $e ($self->Enames) { my ($v1, $v2) = split /;/, $e; push @edge_line, "v$v1 -- v$v2;" }
-  my $dot = join "\n", @vertex_line, @edge_line;
+  my @vertex_lines = map qq["$_";], $self->Vnames->@*;
+  my @edge_lines = map { sprintf qq["%s" -- "%s";], $_->@[0,1] } $self->E;
+  my $dot = join "\n", @vertex_lines, @edge_lines;
   return "graph G {\n$dot\n}\n";
 }
 
