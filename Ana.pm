@@ -34,10 +34,11 @@ use strict;
 # new_graph([ vertex-names... ])
 sub new_graph {
   my ($self, $vnames) = @_;
+  my $class = ref($self) || $self;
   my @vnames = @$vnames;
   my %vmap = map { $vnames[$_] => $_ } 0 .. $#vnames;
   my $adj = [];
-  bless [ \@vnames, \%vmap, $adj ] => $self;
+  bless [ \@vnames, \%vmap, $adj ] => $class;
 }
 
 sub V { $_[0][0] }
@@ -178,4 +179,15 @@ sub components {
   return @components;
 }
 
+sub subgraph {
+  my ($self, @subV) = @_;
+  my %V = map { $_ => 1 } @subV;
+  my $S = $self->new_graph(\@subV);
+  for my $e ($self->E) {
+    if ($V{$e->[0]} && $V{$e->[1]}) {
+      $S->add_edge($e);
+    }
+  }
+  return $S;
+}
 1;
