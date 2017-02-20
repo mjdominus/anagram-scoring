@@ -1,4 +1,5 @@
 package Ana;
+use Carp 'confess';
 
 sub score {
   my ($a, $b) = @_;
@@ -18,6 +19,20 @@ sub normalize {
 sub are_anagrams {
   my ($a, $b) = @_;
   normalize($a) eq normalize($b);
+}
+
+sub score {
+  my ($a, $b) = @_;
+  confess "$a and $b are not anagrams" unless are_anagrams($a, $b);
+  my $len = length($a);
+  my $G = Ana::Graph->new_from_words($a, $b);
+  my @mis = $G->mis;
+  if (wantarray) {
+    # return the simplest chunking that can map one word onto the other
+    confess "unimplemented";
+  } else {
+    return $len - @mis;
+  }
 }
 
 package Ana::Graph;

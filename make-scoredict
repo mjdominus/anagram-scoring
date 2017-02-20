@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+
+use Ana;
+my %dict;
+my %seen;
+while (my $w = <>) {
+  chomp $w;
+  next if $w =~ /[^a-zA-Z]/;
+  next if $seen{lc $w}++;
+  my $norm = Ana::normalize($w);
+  if (exists $dict{$norm}) {
+    for my $v ($dict{$norm}->@*) {
+      my $score = Ana::score($w, $v);
+      printf "%02d %s %s\n", $score, sort($w, $v);
+    }
+  }
+  push $dict{$norm}->@*, $w;
+} continue {
+  print STDERR "." if $. % 1000 == 0;
+}
+
+print STDERR "\n";
+
+
