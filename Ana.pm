@@ -40,7 +40,6 @@ sub new_graph {
   bless [ \@vnames, \%vmap, $adj ] => $self;
 }
 
-sub Vnames { $_[0][0] }
 sub V { $_[0][0] }
 sub E {
   my ($self) = @_;
@@ -85,7 +84,7 @@ sub vi {
 
 sub vnames {
   my ($self, @indices) = @_;
-  return ($self->Vnames->@*)[@indices];
+  return ($self->V->@*)[@indices];
 }
 
 sub are_adjacent {
@@ -150,7 +149,7 @@ sub disjoint {
 
 sub to_dot {
   my ($self) = @_;
-  my @vertex_lines = map qq["$_";], $self->Vnames->@*;
+  my @vertex_lines = map qq["$_";], $self->V->@*;
   my @edge_lines = map { sprintf qq["%s" -- "%s";], $_->@[0,1] } $self->E;
   my $dot = join "\n", @vertex_lines, @edge_lines;
   return "graph G {\n$dot\n}\n";
