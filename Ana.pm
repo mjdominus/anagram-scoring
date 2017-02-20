@@ -76,9 +76,11 @@ sub add_edge {
 
 sub vi {
   my ($self, @vnames) = @_;
+  confess "need array context for multiple arguments to ->vi()"
+    if !wantarray() && @vnames > 1;
   my @vi;
   push @vi, $self->[1]{$_} // confess "Unknown vertex '$_'" for @vnames;
-  @vi;
+  wantarray ? @vi : $vi[0];
 }
 
 sub vnames {
@@ -94,8 +96,8 @@ sub are_adjacent {
 
 sub neighbors {
   my ($self, $v) = @_;
-  my @ni = $self->adj->[$self->vi($v)]->@*;
-  return $self->vnames(@ni);
+  my $adj_to = $self->adj->[$self->vi($v)] // [];
+  return $self->vnames(grep $adj_to->[$_], 0 .. $#$adj_to);
 }
 
 
