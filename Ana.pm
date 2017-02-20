@@ -159,7 +159,7 @@ sub to_dot {
 sub components {
   my ($self) = @_;
   my @components;
-  my @V = $self->V;
+  my @V = $self->V->@*;
   my %used;
   while (@V) {
     my $V = shift @V;
@@ -170,8 +170,8 @@ sub components {
     # DFS starting from V
     while (@queue) {
       my $v = shift @queue;
+      next if $used{$v}++;
       push @component, $v;
-      $used{$v} = 1;
       push @queue, $self->neighbors($v);
     }
     push @components, \@component;
