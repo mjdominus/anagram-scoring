@@ -1,0 +1,128 @@
+#!/usr/bin/perl
+# -*- perl -*-
+
+$DEBUG = 0;
+$BADSCORE = 1_000_000;
+
+LINE:
+while (<>) {
+  my $score = 0;
+  print STDERR "Processing line $..\n" if $. % 100 == 0;
+  if (/\(See /) {
+    next;
+  }
+  chop;
+  my @w = split;
+  for ($i = 0; $i < @w; $i++) {
+    my $w1 = lc $w[$i];
+    next LINE if $seen{$w1};
+    $seen{$w1} = 1;
+    my $l = length($w1);
+    for ($j = $i + 1; $j < @w; $j++) {
+      my $w2 = lc $w[$j];
+      $seen{$w2} = 1;
+      my $start = time;
+
+      my $inc = &find_score($w1, $w2);
+      my $elapsed = time - $start;
+      
+      print STDERR "$elapsed seconds elapsed while working on $w1 -> $w2 (length $l)\n"
+	  if $elapsed > 10;
+      if ($inc == $BADSCORE) {
+	warn "Words $w1 and $w2 are not anagrams!";
+      } else {
+	print "$inc $w1 $w2\n";
+      }
+    }
+  }
+
+}
+
+sub find_score {
+  my ($w1, $w2) = @_;
+  my $n = length($w1);
+  my @z = (0) x $n;
+  my @l1 = split(//, $w1);
+  my @l2 = split(//, $w2);
+
+  my ($sc, $perm) = 
+      &findperm(\@l1, \@l2,
+		[@z],
+		[],
+		0);
+
+  return $sc;
+}
+
+sub print_permutation {
+  my $perm = shift;
+
+  for ($i=0; $i < @$perm; $i++) {
+    $ip[$perm->[$i]] = $i;
+  }
+
+  for ($i = 0; $i < @l1; $i++) {
+    $lPartno++ if $i > 0 && $perm->[$i-1] != $perm->[$i]-1;
+    $rPartno++ if $i > 0 && $ip[$i-1] != $ip[$i]-1;
+    $lP[$lPartno] .= $l1[$i];
+    $rP[$rPartno] .= $l1[$ip[$i]];
+  }
+  print "@lP => @rP\n";	  
+}
+
+sub findperm {
+    my($letL, $letR, $assR, $assign, $first_unassigned) = @_;
+    my $s = '  ' x $first_unassigned;
+    my $una_l = $letL->[$first_unassigned]; # First unassigned letter
+    my $lowscore = $BADSCORE;
+    my $lowperm = ();
+    my $i;
+
+
+    print STDERR $s, "assign: ", join(' ', @$assign), "\n"
+	if $DEBUG;
+
+    if ($first_unassigned > $#{$letL}) {
+	# We assigned all the letters.
+	my $score = &score($assign);
+	print STDERR $s, "score was $score.\n" if $DEBUG;
+	return ($score, $assign);
+    }
+
+    # We will look for a place to assign the first unassigned
+    # letter in the left word.  It is in $una_l.
+    for ($i = 0; $i < @$letR; $i++) {
+	next unless $letR->[$i] eq $una_l; # Skip if wrong letter
+	next if $assR->[$i];	# Skip if this one was assigned already.
+
+	my $new_assR = [@$assR];
+	my $newassign = [@$assign];
+
+	$new_assR->[$i]                = 1;
+	$newassign->[$first_unassigned] = $i;
+
+	my ($score, $perm) = &findperm($letL, $letR, 
+				       $new_assR, 
+				       $newassign, $first_unassigned + 1);
+
+	if ($score < $lowscore) {
+	    $lowscore = $score;
+	    $lowperm = $perm;
+	}
+    }
+
+    return ($lowscore, $lowperm);
+}
+
+sub score {
+    my $pr = shift;
+    my @p = @$pr;
+    my $s = 1;
+    my $i;
+
+    for ($i = 1; $i < @p; $i++) {
+	$s++ unless $p[$i] == $p[$i-1]+1;
+    }
+    return $s;
+}
+
