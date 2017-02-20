@@ -94,6 +94,14 @@ sub are_adjacent {
   $self->adj->[$vi][$wi];
 }
 
+sub adjacent_any {
+  my ($self, $v, @set) = @_;
+  for my $w (@set) {
+    return 1 if $self->are_adjacent($v, $w);
+  }
+  return;
+}
+
 sub neighbors {
   my ($self, $v) = @_;
   my $adj_to = $self->adj->[$self->vi($v)] // [];
