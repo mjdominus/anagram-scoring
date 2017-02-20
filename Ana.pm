@@ -42,8 +42,19 @@ sub new_graph {
 
 sub Vnames { $_[0][0] }
 sub V { $_[0][0] }
-sub E { # list of edges?  what format is useful?  [$vi, $wi] maybe?
+sub E {
+  my ($self) = @_;
+  my $adj = $self->adj;
+  my @E;
+  for my $i (0 .. $#$adj) {
+    next unless my $adj_i = $adj->[$i];
+    for my $j ($i+1 .. $#$adj) {
+      push @E, [ $self->vnames($i, $j) ] if $adj_i->[$j];
+    }
+  }
+  return wantarray ? @E : \@E;
 }
+
 sub adj { $_[0][2] }
 
 sub add_vertices {
