@@ -1,5 +1,6 @@
 package Ana;
 use Carp 'confess';
+use strict;
 
 sub score {
   my ($a, $b) = @_;

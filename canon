@@ -1,6 +1,11 @@
 #!/usr/bin/perl -l
 
+use Getopt::Std;
+getopts('2', \%opt);
+
 while (<>) {
-  print join "", sort split //;
+  chomp;
+  my $norm = join "", sort split //;
+  print $opt{2} ? "$_ $norm" : $norm;
 }
 
