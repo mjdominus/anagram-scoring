@@ -10,13 +10,13 @@ while (my $w = <>) {
   my $norm = Ana::normalize($w);
   if (exists $dict{$norm}) {
     for my $v ($dict{$norm}->@*) {
-      my $score = Ana::score($w, $v);
+      my $score = Ana::score(lc $w, lc $v);
       printf "%02d %s %s\n", $score, sort($w, $v);
     }
   }
   push $dict{$norm}->@*, $w;
 } continue {
-  print STDERR "." if $. % 1000 == 0;
+  print STDERR "." if $. % 10000 == 0;
 }
 
 print STDERR "\n";
