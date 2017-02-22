@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+
+my $word = shift;
+my $canon = join "", sort split //, $word;
+
+while (<>) {
+  chomp;
+  my $norm = join "", sort split //, $_;
+  if ($norm eq $canon) {
+    print $_, "\n";
+  }
+}
