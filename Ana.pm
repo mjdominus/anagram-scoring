@@ -172,10 +172,26 @@ sub disjoint {
   return 1;
 }
 
-sub to_dot {
+sub to_dot_mis {
   my ($self) = @_;
   my @vertex_lines = map qq["$_";], $self->V->@*;
   my @edge_lines = map { sprintf qq["%s" -- "%s";], $_->@[0,1] } $self->E;
+  my $dot = join "\n", @vertex_lines, @edge_lines;
+  return "graph G {\n$dot\n}\n";
+}
+
+sub to_dot {
+  my ($self) = @_;
+  my @V = $self->V->@*;
+  my @vertex_lines = map qq["$_";], @V;
+
+  my @edge_lines;
+  for my $i (0 .. $#V-1) {
+    for my $j ($i+1 .. $#V) {
+      push @edge_lines, sprintf qq["%s" -- "%s";], $V[$i], $V[$j]
+        unless $self->are_adjacent($V[$i], $V[$j]);
+    }
+  }
   my $dot = join "\n", @vertex_lines, @edge_lines;
   return "graph G {\n$dot\n}\n";
 }

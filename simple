@@ -2,6 +2,7 @@
 
 # Process word list
 while (my $word = <>) {
+  next if $seen{$word}++;
   chomp $word;
   my $sorted = join "", sort split //, $word;
   push @{$anagrams{lc $sorted}}, $word;
