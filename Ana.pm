@@ -189,7 +189,7 @@ sub to_dot {
   for my $i (0 .. $#V-1) {
     for my $j ($i+1 .. $#V) {
       push @edge_lines, sprintf qq["%s" -- "%s";], $V[$i], $V[$j]
-        unless $self->are_adjacent($V[$i], $V[$j]);
+        if $self->are_adjacent($V[$i], $V[$j]);
     }
   }
   my $dot = join "\n", @vertex_lines, @edge_lines;
