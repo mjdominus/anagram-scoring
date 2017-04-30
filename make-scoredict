@@ -1,5 +1,25 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+make-scoredict
+
+=head1 SYNOPSIS
+
+        make-scoredict [dictionary-files...]
+
+=head1 DESCRIPTION
+
+Read in lists of words
+and emit one line for each pair of anagrams
+with the anagram score and two words.
+
+uses the C<Ana> library
+which is probably using the MIS algorithm
+to calculate scores.
+
+=cut
+
 use Ana;
 my %dict;
 my %seen;

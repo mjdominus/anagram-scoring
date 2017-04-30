@@ -1,5 +1,22 @@
 #!/usr/bin/perl -l
 
+#!/usr/bin/perl
+
+=head1 NAME
+
+canon
+
+=head1 SYNOPSIS
+
+        canon [-2] [word-lists...]
+
+=head1 DESCRIPTION
+
+Read in lists of words and print the canonical form for each.
+With C<-2>, each line contains the original word followed by its canonical form.
+
+=cut
+
 use Getopt::Std;
 getopts('2', \%opt);
 

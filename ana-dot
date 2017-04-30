@@ -1,5 +1,26 @@
 #!/usr/bin/perl
 
+
+=head1 NAME
+
+ana-dot
+
+=head1 SYNOPSIS
+
+        ana-dot word1 word2
+
+=head1 DESCRIPTION
+
+Given two words that are anagrams,
+generate the conflict graph for the two words
+and print out its description in the DOT language
+for layout with GraphViz.
+
+On standard error, prints a listing of the graph's connected components
+and the vertices in one of its maximal independent sets.
+
+=cut
+
 use Ana;
 @ARGV == 2 or die "Usage: ana-dot anagram-a anagram-b\n";
 

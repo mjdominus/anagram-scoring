@@ -1,5 +1,21 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+simple
+
+=head1 SYNOPSIS
+
+        simple [dictionary-files...]
+
+=head1 DESCRIPTION
+
+Read in lists of words
+and emits a sorted anagram list
+in alphabetic order.
+
+=cut
+
 # Process word list
 while (my $word = <>) {
   next if $seen{$word}++;

@@ -1,5 +1,27 @@
 #!/usr/bin/perl
 # -*- perl -*-
+=head1 NAME
+
+old-score-anagram
+
+=head1 SYNOPSIS
+
+        old-score-anagram [anagram-files...]
+
+=head1 DESCRIPTION
+
+1992 program to score anagram pairs.
+Expects to receive an old-style anagram dictionary\
+with one set of anagrams per line
+or lines that look like C<some-word (See some-other-word)>
+which are skipped.
+
+For each pair of anagram words,
+constructs all possible mappings from the first word to the second,
+finds the mapping with lowest weight,
+and prints the weight and the two words on a line.
+
+=cut
 
 $DEBUG = 0;
 $BADSCORE = 1_000_000;

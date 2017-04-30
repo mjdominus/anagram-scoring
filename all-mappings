@@ -1,5 +1,22 @@
 #!perl
 
+=head1 NAME
+
+all-mappings
+
+=head1 SYNOPSIS
+
+        all-mappings word1 word2
+
+=head1 DESCRIPTION
+
+Given two words that are anagrams,
+print out all the ways to divide word1
+into chunks that can be rearranged to form word2,
+and the nunmber of chunks for each.
+
+=cut
+
 use Ana;
 @ARGV == 2 or die "Usage: all-mappings anagram-a anagram-b\n";
 

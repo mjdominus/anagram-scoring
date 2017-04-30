@@ -1,5 +1,20 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+anagrams-of
+
+=head1 SYNOPSIS
+
+        anagrams-of some-word [dictionary-files...]
+
+=head1 DESCRIPTION
+
+Find and print all the anagrams of the specified word
+in the given dictionary files.
+
+=cut
+
 my $word = shift;
 my $canon = join "", sort split //, $word;
 
