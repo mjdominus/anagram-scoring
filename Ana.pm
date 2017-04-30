@@ -36,6 +36,44 @@ sub score {
   }
 }
 
+sub all_mappings {
+  my ($a, $b) = @_;
+  confess "$a and $b are not anagrams" unless are_anagrams($a, $b);
+  my @a = split //, $a;
+  my @b = split //, $b;
+  my @mappings;
+
+  my @queue = [ [], \@a, {} ];
+  NODE: while (@queue) {
+    my ($node) = shift @queue;
+    my ($map, $left, $right_used) = @$node;
+    if (@$left == 0) {
+      push @mappings, $map;
+      next NODE;
+    }
+
+    my ($l, @lrest) = @$left;
+    for my $r_i (0 .. $#b) {
+      my $r = $b[$r_i];
+      next if $r ne $l or $right_used->{$r_i};
+      push @queue, [ [ @$map, $r_i ], \@lrest, { %$right_used, $r_i => 1 } ];
+    }
+  }
+
+  return @mappings;
+}
+
+sub mapping_score {
+  my ($m) = @_;
+  my $chunks = 1;
+  for my $i (1 .. $#$m) {
+    if ($m->[$i] != $m->[$i-1] + 1) {
+      $chunks++;
+    }
+  }
+  return $chunks;
+}
+
 package Ana::Graph;
 use Carp 'confess';
 use strict;

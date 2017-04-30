@@ -1,0 +1,22 @@
+#!perl
+
+use Ana;
+@ARGV == 2 or die "Usage: all-mappings anagram-a anagram-b\n";
+
+my ($a, $b) = @ARGV;
+Ana::are_anagrams($a, $b) or die "Those words are not anagrams.\n";
+
+my @maps = Ana::all_mappings($a, $b);
+
+for my $m (@maps) {
+  for my $i (1 .. length($a)) {
+    my $sep = $i == length($a) ? "" :
+              $m->[$i-1] + 1 == $m->[$i] ? " " : "|";
+    print substr($a, $i-1, 1), $sep;
+  }
+  print "  ", Ana::mapping_score($m), "\n";
+  for my $i (1 .. length($a)) {
+    print "$m->[$i-1] ";
+  }
+  print "\n\n";
+}
