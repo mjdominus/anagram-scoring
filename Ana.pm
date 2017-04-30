@@ -1,26 +1,72 @@
 package Ana;
+
+=head1 NAME
+
+C<Ana> – Utility functions for anagrams
+
+=head1 SYNOPSIS
+
+        use Ana;
+        if (Ana::are_anagrams($word1, $word2)) {
+          print "This anagram has score ", Ana::score($word1, $word2), "\n";
+        }
+
+=head1 DESCRIPTION
+
+=cut
+
 use Carp 'confess';
 use strict;
 
-sub score {
-  my ($a, $b) = @_;
 
-  my $G = Ana::Graph->new_from_words($a, $b);
-  # Identify common pairs
-  # Construct constraint graph
-  # Find maximal independent set
-  # Shortest mapping
-}
+=head2 FUNCTIONS
+
+=head3 C<normalize>
+
+        $canonical_form = Ana::normalize($word)
+
+Returns the canonical form of its argument.
+Two words are guaranteed to be anagrams if and only if their
+canonical forms are identical.
+
+The canonical form contains the same letters as the input word,
+converted to lowercase, in alphabetical order.
+
+Inputs with non-letters are not handled.
+
+=cut
 
 sub normalize {
   my ($w) = @_;
   join "", sort split //, lc $w;
 }
 
+=head3 C<are_anagrams>
+
+        $boolean = Ana::Are_anagrams($word1, $word2)
+
+Returns true if the arguments are anagrams of one another.
+
+=cut
+
 sub are_anagrams {
   my ($a, $b) = @_;
   normalize($a) eq normalize($b);
 }
+
+=head3 C<score>
+
+        $score = Ana::score($word1, $word2)
+
+Returns the score of a given anagram pair.
+The first word is cut into as few chunks as possible,
+and the chnuks are rearranged to make the second word.
+The score is the smallest possible number of chunks that
+can do this.
+
+Always returns a whole number between 1 and the length of the words.
+
+=cut
 
 sub score {
   my ($a, $b) = @_;
@@ -35,6 +81,41 @@ sub score {
     return $len - @mis;
   }
 }
+
+=head3 C<all_mappings>
+
+        @mappings = Ana::all_mappings($word1, $word2);
+
+Return a list of descriptions of mappings that transform
+the first word into the second.
+
+Say the words have length I<n>.
+
+A mapping is simply an array containing a permutation of the indices 0
+… I<n>-1 that describes where each letter of the first word goes to in
+the second word.
+
+For example, for the words
+
+        stop post
+
+there is exactly one  mapping, C<[2, 3, 1, 0]>,
+because the letters C<s>, C<t>, C<o>, C<p>
+in the first word
+are mapped to the 2nd, 3rd, 1st, and 0th letters
+in the second word.
+
+Put another way,
+if the letters of the first word are in C<@a>
+and the letters of the second word are in C<@b>,
+and the mapping is C<$m>,
+then we always have:
+
+        $a[$i] eq $b[ $m->[$i] ]
+
+for each C<$i> between 0 and I<n>-1.
+
+=cut
 
 sub all_mappings {
   my ($a, $b) = @_;
@@ -62,6 +143,21 @@ sub all_mappings {
 
   return @mappings;
 }
+
+=head3 C<mapping_score>
+
+        $score = Ana::mapping_score($mapping);
+
+
+Given a mapping
+such as is returned by C<all_mappings>,
+return its score.
+
+The score is the number of contiguous chunks
+into which it divides the two words
+to rearrange one into the other.
+
+=cut
 
 sub mapping_score {
   my ($m) = @_;
