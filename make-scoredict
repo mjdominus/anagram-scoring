@@ -23,20 +23,23 @@ to calculate scores.
 use Ana;
 use Try::Tiny;
 my %dict;
+my %orig;
 my %seen;
 while (my $w = <>) {
   chomp $w;
+  my $orig_w = $w;
+  $w =~ s/\s+//g;               # strip whitespace
   next if $w =~ /[^a-zA-Z]/;
   next if $seen{lc $w}++;
+  $orig{$w} //= $orig_w;
   my $norm = Ana::normalize($w);
   if (exists $dict{$norm}) {
     for my $v ($dict{$norm}->@*) {
-      my $score = Ana::score(lc $w, lc $v);
       try {
         my $score = Ana::score(lc $w, lc $v);
-        printf "%02d %s %s\n", $score, sort($w, $v);
+        printf "%02d %s / %s\n", $score, sort($orig{$w}, $orig{$v});
       } catch {
-        warn "Too hard to map '$w' to '$v'; skipping\n";
+        warn "Too hard to map '$orig{$w}' to '$orig{$v}'; skipping\n";
       }
     }
   }
