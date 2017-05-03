@@ -391,7 +391,7 @@ sub mis {
 use Time::HiRes ();
 sub mis_component {
   my ($self) = @_;
-  my @V = $self->V->@*;
+  my @V = sort special_vertex_sort $self->V->@*;
 
   my $start = Time::HiRes::time();
 
@@ -420,6 +420,14 @@ sub mis_component {
 
   }
   return wantarray ? @$best_mis : $best_mis;
+}
+
+sub special_vertex_sort {
+  my ($amatch, $bmatch) = (scalar($a =~ /^(\d+),\1$/),
+                           scalar($b =~ /^(\d+),\1$/));
+  if    (  $amatch && ! $bmatch) { return -1 }
+  elsif (! $amatch &&   $bmatch) { return 1 }
+  else { return 0 }
 }
 
 1;
