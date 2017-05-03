@@ -22,18 +22,21 @@ use Ana;
 
 my ($a, $b) = @ARGV;
 Ana::are_anagrams($a, $b) or die "Those words are not anagrams.\n";
+my $n_digits = length($a) < 10 ? 1 : 2;
+my $SPC = " " x $n_digits;
+my $BAR = " " x ($n_digits-1) . "|";
 
 my @maps = Ana::all_mappings($a, $b);
 
 for my $m (@maps) {
   for my $i (1 .. length($a)) {
     my $sep = $i == length($a) ? "" :
-              $m->[$i-1] + 1 == $m->[$i] ? " " : "|";
+              $m->[$i-1] + 1 == $m->[$i] ? $SPC : $BAR;
     print substr($a, $i-1, 1), $sep;
   }
   print "  ", Ana::mapping_score($m), "\n";
   for my $i (1 .. length($a)) {
-    print "$m->[$i-1] ";
+    printf "%-${n_digits}d ", $m->[$i-1];
   }
   print "\n\n";
 }
