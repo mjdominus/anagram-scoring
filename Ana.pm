@@ -379,11 +379,17 @@ sub mis {
 
 # This finds a maximal independent set in a graph, but for disconnected
 # graphs it may be a lot faster to use ->mis
+use Time::HiRes ();
 sub mis_component {
   my ($self) = @_;
   my @V = $self->V->@*;
+
+  my $start = Time::HiRes::time();
+
   my $best_mis = [];
   my @queue = ([[], \@V]);
+  my $count = 0;
+
   # DFS starting from the empty set
   while (@queue) {
     my ($set, $pool) = pop(@queue)->@*;
@@ -396,6 +402,7 @@ sub mis_component {
     push @queue, [   $set          , \@new_pool ];
     push @queue, [ [ @$set, $first], \@new_pool ]
       unless $self->adjacent_any($first, @$set);
+    die "Timed out" if ++$count % 100000 == 0 && Time::HiRes::time() - $start > 10;
 
   }
   return wantarray ? @$best_mis : $best_mis;

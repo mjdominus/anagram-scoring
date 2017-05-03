@@ -21,6 +21,7 @@ to calculate scores.
 =cut
 
 use Ana;
+use Try::Tiny;
 my %dict;
 my %seen;
 while (my $w = <>) {
@@ -31,11 +32,17 @@ while (my $w = <>) {
   if (exists $dict{$norm}) {
     for my $v ($dict{$norm}->@*) {
       my $score = Ana::score(lc $w, lc $v);
-      printf "%02d %s %s\n", $score, sort($w, $v);
+      try {
+        my $score = Ana::score(lc $w, lc $v);
+        printf "%02d %s %s\n", $score, sort($w, $v);
+      } catch {
+        warn "Too hard to map '$w' to '$v'; skipping\n";
+      }
     }
   }
   push $dict{$norm}->@*, $w;
 } continue {
+  print STDERR $./1000000, "\n" if $. % 100000 == 0;
   print STDERR "." if $. % 10000 == 0;
 }
 
