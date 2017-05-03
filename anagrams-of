@@ -16,11 +16,11 @@ in the given dictionary files.
 =cut
 
 my $word = shift;
-my $canon = join "", sort split //, $word;
+my $canon = join "", sort split //, lc $word;
 
 while (<>) {
   chomp;
-  my $norm = join "", sort split //, $_;
+  my $norm = join "", sort split //, lc $_;
   if ($norm eq $canon) {
     print $_, "\n";
   }
