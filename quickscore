@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+quickscore
+
+=head1 SYNOPSIS
+
+        quickscore word1 word2
+
+=head1 DESCRIPTION
+
+=cut
+
+use Ana;
+
+for my $w (@ARGV) {
+    $w =~ s/\s+//g;               # strip whitespace
+    exit if $w =~ /[^a-zA-Z]/;
+}
+
+my $score = Ana::score(@ARGV[0,1]);
+printf "%02d %s %s\n", $score, sort($w, $v);
