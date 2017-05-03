@@ -258,6 +258,15 @@ sub neighbors {
   return $self->vnames(grep $adj_to->[$_], 0 .. $#$adj_to);
 }
 
+# Remove all the neighbors of $v from @$vlist
+# and return the result
+sub remove_neighbors_of {
+  my ($self, $v, $vlist) = @_;
+  $DB::single = 1;
+  my ($vi, @vli) = $self->vi($v, @$vlist);
+  my $adj = $self->adj->[$vi];
+  return [$self->vnames(grep ! $adj->[$_], @vli)];
+}
 
 # Given words A and B:
 # the vertices are pairs (i, j) such that A[i] = B[j] and A[i+1] = B[j+1]
@@ -400,8 +409,13 @@ sub mis_component {
     my ($first, @new_pool) = @$pool;
     next unless defined $first;
     push @queue, [   $set          , \@new_pool ];
-    push @queue, [ [ @$set, $first], \@new_pool ]
-      unless $self->adjacent_any($first, @$set);
+
+    unless ($self->adjacent_any($first, @$set)) {
+      my $smaller_pool = $self->remove_neighbors_of($first, \@new_pool);
+      push @queue, [ [ @$set, $first], $smaller_pool ] if
+        @$set + 1 + @$smaller_pool > @$best_mis;
+    }
+
     die "Timed out" if ++$count % 100000 == 0 && Time::HiRes::time() - $start > 10;
 
   }
