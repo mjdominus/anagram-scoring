@@ -20,6 +20,7 @@ my $canon = join "", sort split //, lc $word;
 
 while (<>) {
   chomp;
+  next if $seen{lc $_}++;
   my $norm = join "", sort split //, lc $_;
   if ($norm eq $canon) {
     print $_, "\n";
