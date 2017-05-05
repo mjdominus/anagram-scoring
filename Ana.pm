@@ -1,5 +1,7 @@
 package Ana;
 
+=encoding utf8
+
 =head1 NAME
 
 C<Ana> – Utility functions for anagrams

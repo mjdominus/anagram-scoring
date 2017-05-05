@@ -3,22 +3,86 @@ package Ana::Graph;
 use Carp 'confess';
 use strict;
 
-# A graph has:
-#  A list of vertex names
-#  A hash mapping names to vertex indices
-#  A two-dimensional adjacency array of edges ($adj->[$i][$j])
-#
-# [ Vnames, Vmap, Adj ]
+=encoding utf8
+
+=head1 NAME
+
+C<Ana::Graph> – Graph algorithms for anagram detection and scoring
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head2 Internals
+
+The internal structure of a graph object is:
+
+        [ Vnames, Vmap, Adj ]
+
+The C<Vnames> component is an array of vertex names.
+These should be distinct strings.
+
+The C<Vmap> component is a hash that maps vertex names
+to their indices in the C<Vnames> array.  That is,
+
+        $Vmap->{$Vnames->[$i]}  === $i
+
+for each C<$i> that is a legal index of C<Vnames>,
+and
+        $Vnames->[$Vmap->{$name}] === $name
+
+for each vertex name in C<Vnames>.
+
+The C<Adj> component is a two dimensional array
+that expresses the adjacency relationship between vertices.
+ should be a boolean true value if
+the vertices numbered I<i> and I<j> are connected by an edge,
+false otherwise.
+
+C<< $Adj->[$i][$j] >> should in call cases
+have the same truth value as C<< $Adj->[$j][$i] >>.
+
+=head2 Methods
+
+=head3 C<new_graph>
+
+        my $graph = Ana::Graph->new_graph([ I<vertex-names>... ]);
+
+Construct a new, totally disconnected graph with the specified vertex names.
+To add edges, use C<add_edge> or C<add_edges>.
+
+=cut
 
 # new_graph([ vertex-names... ])
 sub new_graph {
   my ($self, $vnames) = @_;
+  $vnames //= [];
   my $class = ref($self) || $self;
   my @vnames = @$vnames;
   my %vmap = map { $vnames[$_] => $_ } 0 .. $#vnames;
-  my $adj = [];
-  bless [ \@vnames, \%vmap, $adj ] => $class;
+  bless [ \@vnames, \%vmap, [] ] => $class;
 }
+
+=head3 C<V>
+
+        my $vnames = $graph->V;
+
+Returns the array of the graph's vertex names.
+
+=head3 C<E>
+
+        my $edges = $graph->E;
+        for my $edge (@$edges) {
+          print "There is an edge from vertex $edge->[0] to vertex $edge->[1]\n";
+        }
+
+Returns an array of the graphs edges.
+Each edge is a two element array containing the names of the edge's two endpoints.
+Each edge is included only once in the returned list.
+
+In list context, the function returns a list of edges instead of an array.
+
+=cut
 
 sub V { $_[0][0] }
 sub E {
@@ -34,12 +98,31 @@ sub E {
   return wantarray ? @E : \@E;
 }
 
+=head3 C<adj>
+
+        my $matrix = $graph->adj;
+
+Returns the graph's adjacency matrix.
+
+=cut
+
 sub adj { $_[0][2] }
 
-sub add_vertices {
-  my ($self, @vnames) = @_;
-  push $self->V->@*, @vnames;
-}
+=head3 C<add_edge>
+
+=head3 C<add_edges>
+
+        $graph->add_edge([ $v1, $v2 ]);
+
+        $graph->add_edges([ $v1, $v2 ], [ $v3, $v4 ], …);
+
+Adds edges to the graph.
+Each edge is specified as a two-element array containing the names
+of the edge's two endpoints.
+
+If an added edge is already in the graph, it is ignored.
+
+=cut
 
 sub add_edges {
   my ($self, @edges) = @_;
@@ -53,6 +136,20 @@ sub add_edge {
   $self->adj->[$v2][$v1] = 1;
 }
 
+=head3 C<vi>
+
+        my @indices = $self->vi( $v1, $v2, … );
+        my $index = $self->vi( $v );
+
+Returns the index number of the specified vertices,
+suitable for indexing the adjacency matrix.
+
+In scalar context, only one vertex name may be given.
+
+If any vertices are unrecognized, throws an exception.
+
+=cut
+
 sub vi {
   my ($self, @vnames) = @_;
   confess "need array context for multiple arguments to ->vi()"
@@ -62,16 +159,45 @@ sub vi {
   wantarray ? @vi : $vi[0];
 }
 
+=head3 C<vnames>
+
+        my @names = $self->vnames( $i1, $i2, … );
+
+This is just a slice from the graph's vertex list.
+Given vertex indices C<$i1> etc., returns the names of
+those vertices.
+
+=cut
+
 sub vnames {
   my ($self, @indices) = @_;
   return ($self->V->@*)[@indices];
 }
+
+=head3 C<are_adjacent>
+
+        my $bool = $graph->are_adjacent( $v1, $v2 );
+
+Returns true if the two given vertices are connected by an edge,
+false otherwise.
+
+=cut
 
 sub are_adjacent {
   my ($self, $v, $w) = @_;
   my ($vi, $wi) = $self->vi($v, $w);
   $self->adj->[$vi][$wi];
 }
+
+=head3 C<adjacent_any>
+
+        my $bool = $graph->are_adjacent( $v, $v1, $v2, … );
+
+Returns true if the first vertex C<$v> is adjacent to any of the other vertices
+C<$v1, $v2, …>,
+false otherwise.
+
+=cut
 
 sub adjacent_any {
   my ($self, $v, @set) = @_;
