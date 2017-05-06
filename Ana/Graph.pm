@@ -3,6 +3,8 @@ package Ana::Graph;
 use Carp 'confess';
 use strict;
 
+our $mis_timeout = 10;
+
 =encoding utf8
 
 =head1 NAME
@@ -371,7 +373,7 @@ sub mis_component {
         @$set + 1 + @$smaller_pool > @$best_mis;
     }
 
-    die "Timed out" if ++$count % 100000 == 0 && Time::HiRes::time() - $start > 10;
+    die "Timed out" if ++$count % 100000 == 0 && Time::HiRes::time() - $start > $Ana::Graph::mis_timeout;
 
   }
   return wantarray ? @$best_mis : $best_mis;
