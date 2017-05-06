@@ -209,11 +209,31 @@ sub adjacent_any {
   return;
 }
 
+=head3 C<neighbors>
+
+        my @neighbors = $graph->neighbors( $v );
+
+Returns a list of the neighbors of C<$v>;
+that is, the vertices that share an edge with C<$v>.
+
+=cut
+
 sub neighbors {
   my ($self, $v) = @_;
   my $adj_to = $self->adj->[$self->vi($v)] // [];
   return $self->vnames(grep $adj_to->[$_], 0 .. $#$adj_to);
 }
+
+=head3 C<remove_neighbors_of>
+
+        my $remaining = $graph->remove_neighbors_of( $v, $vertices );
+
+Given an array of vertices in C<$vertices>,
+return a copy of C<$vertices>
+from which all the neighbors of vertex C<$v>
+have been removed.
+
+=cut
 
 # Remove all the neighbors of $v from @$vlist
 # and return the result
@@ -224,6 +244,20 @@ sub remove_neighbors_of {
   my $adj = $self->adj->[$vi];
   return [$self->vnames(grep ! $adj->[$_], @vli)];
 }
+
+=head3 C<new_from_words>
+
+        my $graph = Ana::Graph->new_from_words( $a, $b );
+
+The words C<$a> and C<$b> must be anagrams.  This method builds a new
+graph for the words, encoding the constraints of the algorithm of
+Goldstein, Kilman, and Zheng decscribed in
+L<https://cs.stackexchange.com/a/2265/1786>.
+
+A maximum independent set in the resulting graph can be translated to
+a minimum-chunk anagramming of the two words.
+
+=cut
 
 # Given words A and B:
 # the vertices are pairs (i, j) such that A[i] = B[j] and A[i+1] = B[j+1]
@@ -262,6 +296,17 @@ sub new_from_words {
   return $G;
 }
 
+=head3 C<disjoint>
+
+        my $bool = disjoint( $a, $b );
+
+Return false if the arrays C<$a> and C<$b> contain any element in common,
+true if they are disjoint.
+
+The words C<$a> and C<$b> must be anagrams.  This method builds a new
+
+=cut
+
 sub disjoint {
   my ($S, $T) = @_;
   for my $s (@$S) {
@@ -272,6 +317,18 @@ sub disjoint {
   return 1;
 }
 
+=head3 C<to_dot>
+
+        my $dot_program_string = $graph->to_dot();
+
+Returns a program for drawing the graph,
+in the I<Dot> graph specification language.
+
+See C<http://www.graphviz.org/> for complete details about Graphviz and Dot.
+
+=cut
+
+# This seems to do exactly the same as to_dot.  Why do I have it?
 sub to_dot_mis {
   my ($self) = @_;
   my @vertex_lines = map qq["$_";], $self->V->@*;
@@ -296,6 +353,17 @@ sub to_dot {
   return "graph G {\n$dot\n}\n";
 }
 
+=head3 C<components>
+
+        my @components = $graph->components();
+
+Calculate the vertices in the connected components of the graph.
+
+Returns a list of components, each of which is an array of vertices.
+Together these arrays partition the set of vertices.
+
+=cut
+
 sub components {
   my ($self) = @_;
   my @components;
@@ -319,6 +387,18 @@ sub components {
   return @components;
 }
 
+=head3 C<subgraph>
+
+        my $subgraph = $graph->subgraph( @vertices );
+
+Calculate the induced subgraph of a graph.
+This is the graph that contains only the vertices
+in the specified set,
+and all the edges of the original graph
+with both endpoints in the set.
+
+=cut
+
 sub subgraph {
   my ($self, @subV) = @_;
   my %V = map { $_ => 1 } @subV;
@@ -331,8 +411,25 @@ sub subgraph {
   return $S;
 }
 
-# This finds a maximal independent set of a possibly not-connected graph
-# be decomposing it into components and solving the problem on each subcomponent
+=head3 C<mis>
+
+        my $mis = $graph->mis;
+
+Calculates the maximum independent set of a graph.
+This is the largest possible set of vertices
+such that no two of them are neighbors.
+
+The MIS problem is NP-hard.
+Good algorithms solve the problem in O(1.22 ** n) time.
+The simple branch-and-bound algorithm used here may not
+be better than O(2 ** n).
+
+This method will time out and throw an exception of it takes too long.
+The timeout is ten seconds for each connected component of the graph.
+To change the timeout, set C<$Ana::Graph::mis_timeout> to the number of seconds.
+
+=cut
+
 sub mis {
   my ($self) = @_;
   my @mis;
@@ -378,6 +475,22 @@ sub mis_component {
   }
   return wantarray ? @$best_mis : $best_mis;
 }
+
+=head2 Functions
+
+=head3 C<special_vertex_sort>
+
+        my @sorted_vertices = sort special_vertex_sort @vertices;
+
+Graphs constructed by C<< ->new_from_words >> have vertex names of the
+form C<m,n> where I<m> and I<n> are numbers.  This comparator function
+is use  by C<< ->mis >> to sort a graph's vertex list into an order that
+may allow the algorithm to discover the MIS more quickly.
+
+Specifically, vertices with I<m> = I<n> are sorted before the others, and
+C<< ->mis >> tries to include those in the MIS before it tries the other vertices.
+
+=cut
 
 sub special_vertex_sort {
   my ($amatch, $bmatch) = (scalar($a =~ /^(\d+),\1$/),
