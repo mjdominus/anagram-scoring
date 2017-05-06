@@ -33,14 +33,15 @@ canonical forms are identical.
 
 The canonical form contains the same letters as the input word,
 converted to lowercase, in alphabetical order.
+Nonletters are discarded.
 
-Inputs with non-letters are not handled.
+Does not handle extended characters.
 
 =cut
 
 sub normalize {
   my ($w) = @_;
-  join "", sort split //, lc $w;
+  join "", sort grep /[a-zA-Z]/, split //, lc $w;
 }
 
 =head3 C<are_anagrams>
