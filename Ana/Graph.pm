@@ -138,6 +138,33 @@ sub add_edge {
   $self->adj->[$v2][$v1] = 1;
 }
 
+=head3 C<add_vertex>
+
+=head3 C<add_vertices>
+
+        $graph->add_vertex( $v );
+
+        $graph->add_vertices( $v1, $v2, ... );
+
+Adds disconnected vertices to the graph.
+Use C<< ->add_edges >> to connect them to the rest of the graph.
+
+If an added vertex is already in the graph, an exception is thrown.
+
+=cut
+
+sub add_vertices {
+  my ($self, @vertices) = @_;
+  $self->add_vertex($_) for @vertices;
+}
+
+sub add_vertex {
+  my ($self, $v) = @_;
+  confess "duplicate vertex '$v'" if exists $self->[1]{$v};
+  push $self->[0]->@*, $v;
+  $self->[1]{$v} = $self->[0]->$#*;
+}
+
 =head3 C<vi>
 
         my @indices = $self->vi( $v1, $v2, … );
