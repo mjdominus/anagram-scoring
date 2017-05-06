@@ -16,18 +16,20 @@ in the given dictionary files.
 =cut
 
 my %canon;
+use Ana;
+
 while (@ARGV) {
     my $word = shift;
     last if $word eq "--";
-    my $canon = join "", sort split //, lc $word;
+    my $canon = Ana::normalize($word);
     $canon{$canon} = $word;
 }
 
 while (<>) {
   chomp;
   next if $seen{lc $_}++;
-  my $norm = join "", sort split //, lc $_;
+  my $norm = Ana::normalize($_);
   if ($canon{$norm} && $canon{$norm} ne $_) {
-    print $canon{$norm}, " ", $_, "\n";
+    print $canon{$norm}, " / ", $_, "\n";
   }
 }
