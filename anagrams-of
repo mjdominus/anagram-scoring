@@ -6,23 +6,28 @@ anagrams-of
 
 =head1 SYNOPSIS
 
-        anagrams-of some-word [dictionary-files...]
+        anagrams-of words... [ -- dictionary-files...]
 
 =head1 DESCRIPTION
 
-Find and print all the anagrams of the specified word
+Find and print all the anagrams of the specified words
 in the given dictionary files.
 
 =cut
 
-my $word = shift;
-my $canon = join "", sort split //, lc $word;
+my %canon;
+while (@ARGV) {
+    my $word = shift;
+    last if $word eq "--";
+    my $canon = join "", sort split //, lc $word;
+    $canon{$canon} = $word;
+}
 
 while (<>) {
   chomp;
   next if $seen{lc $_}++;
   my $norm = join "", sort split //, lc $_;
-  if ($norm eq $canon) {
-    print $_, "\n";
+  if ($canon{$norm} && $canon{$norm} ne $_) {
+    print $canon{$norm}, " ", $_, "\n";
   }
 }
