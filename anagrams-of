@@ -7,6 +7,7 @@ anagrams-of
 =head1 SYNOPSIS
 
         anagrams-of words... [ -- dictionary-files...]
+        anagrams-of -f wordlist-file dictionary-files
 
 =head1 DESCRIPTION
 
@@ -18,11 +19,24 @@ in the given dictionary files.
 my %canon;
 use Ana;
 
-while (@ARGV) {
+if ($ARGV[0] eq "-f") {
+  while ($ARGV[0] eq "-f") {
+    shift;
+    my $file = shift;
+    open my($f), "<", $file or die "Couldn't read '$file': $!";
+    while (my $word = <$f>) {
+      chomp $word;
+      my $canon = Ana::normalize($word);
+      $canon{$canon} = $word;
+    }
+  }
+} else {
+  while (@ARGV) {
     my $word = shift;
     last if $word eq "--";
     my $canon = Ana::normalize($word);
     $canon{$canon} = $word;
+  }
 }
 
 while (<>) {
