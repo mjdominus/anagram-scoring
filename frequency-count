@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+use strict;
+
+=head1 NAME
+
+frequency-count
+
+=head1 SYNOPSIS
+
+        frequency-count words...
+
+=head1 DESCRIPTION
+
+For each of the words on the command line,
+search for it in the list of Wikipedia article titles
+and in the list of scored  anagrams
+and print out statistics of how many times it appears in each.
+
+Anagrams with scores less than 6 are disregarded.
+
+=head1 BUGS
+
+The paths to the two input files are hardcoded.
+
+The minimum anagram score is hardcoded.
+
+The output should probably be in frequency order,
+but it is alphabetic.
+
+=cut
+
+
+
+my @words = map lc, @ARGV;
+
+open my($dict), "<", "dict/wikipedia-titles" or die;
+open my($ana),  "<", "new-results/wikipedia-scores" or die;
+my $MINSCORE = 6;
+
+my (%DICT, %ANA);
+
+while (my $line = <$dict>) {
+  $line = lc $line;
+  for my $word (@words) {
+    if (index($line, $word) >= 0) {
+      $DICT{$word} ++;
+    }
+  }
+}
+
+while (my $line = <$ana>) {
+  my ($score, $anas) = split /\s/, $line, 2;
+  next if $score < $MINSCORE;
+  $anas = lc $anas;
+  for my $word (@words) {
+    if (index($anas, $word) >= 0) {
+      $ANA{$word} ++;
+    }
+  }
+}
+
+for my $word (sort @words) {
+  printf "%-20s %4d %5d %5.1f%%\n", $word, $ANA{$word}, $DICT{$word},
+    $DICT{$word} ? 100 * $ANA{$word} / $DICT{$word} : 0;
+}
+
+
